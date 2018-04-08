@@ -1,0 +1,17 @@
+# var OFF = 0, WARN = 1, ERROR = 2;
+
+{
+    "env": {
+        "es6": true
+    },
+    "extends": "airbnb-base",
+
+    "rules": {
+        indent: ["error", 4],
+        radix: ["error", "as-needed"],
+        "no-plusplus": 0,
+        "no-console": 0,
+        "max-len": [2, 180],
+        "consistent-return": 0
+    }
+}
