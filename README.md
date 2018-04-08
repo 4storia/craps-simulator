@@ -2,6 +2,13 @@
 
 Craps simulator automates both sides of a standard craps table - both the player and the dealer. The player is automated via a user-created algorithm, to allow anyone to fine-tune their betting strategies while playing craps.
 
+## Installation
+
+1. Clone repo
+2. Install node > 8.0
+3. `$ npm install`
+4. `$ node runner.js` or `npm start`
+
 ## Player Algorithm Creation
 
 Currently, the automated player's algorithm is stored in `./betting-algorithm.js`. (This will change at some point to be an arbitrary user-defined file)
