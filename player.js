@@ -5,6 +5,12 @@ class Player {
         this.cash = startingState.cash || 100;
     }
 
+    getCurrentState() {
+        return {
+            cash: this.cash,
+        };
+    }
+
     setCircularGameReference(gameInstance) {
         this.gameInstance = gameInstance;
     }

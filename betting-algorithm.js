@@ -1,4 +1,4 @@
-const { preventFloatingError } = require('./helpers');
+const { preventFloatingError, findNearestWholeNumberPayout } = require('./helpers');
 
 function calculatePassLineBackingBet(state) {
     const { tableState, playerState, gameState } = state;
@@ -33,6 +33,18 @@ function calculatePassLineBackingBet(state) {
     }
 }
 
+function calculatePlaceBetFor6and8(numberOfTurns, minBet) {
+    if (numberOfTurns === 0) {
+        return findNearestWholeNumberPayout(minBet * 2, 7 / 6);
+    } else if (numberOfTurns === 2) {
+        return -1 * findNearestWholeNumberPayout(minBet, 7 / 6);
+    } else if (numberOfTurns === 4) {
+        return -1 * findNearestWholeNumberPayout(minBet, 7 / 6);
+    }
+
+    return 0;
+}
+
 function playLoop(dispatch, stateInstance) {
     const { tableState, gameState } = stateInstance;
 
@@ -40,11 +52,19 @@ function playLoop(dispatch, stateInstance) {
         return dispatch('passLineBet', { amount: tableState.tableMinimumBet });
     }
 
-    if (!gameState.passLine.backingBet) {
+    if (!gameState.passLine.backingBet && gameState.numberOfTurnsSincePointWasEstablished === 0) {
         const backingBet = calculatePassLineBackingBet(stateInstance);
         if (backingBet) {
             dispatch('passLineBackingBet', { amount: backingBet });
         }
+    } else if (gameState.passLine.backingBet && gameState.numberOfTurnsSincePointWasEstablished > 4) {
+        dispatch('passLineBackingBet', { amount: -1 * gameState.passLine.backingBet });
+    }
+
+    const betFor6And8 = calculatePlaceBetFor6and8(gameState.numberOfTurnsSincePointWasEstablished, tableState.tableMinimumBet);
+    if (betFor6And8) {
+        dispatch('pointNumberPlaceBet', { point: 6, amount: betFor6And8 });
+        dispatch('pointNumberPlaceBet', { point: 8, amount: betFor6And8 });
     }
 }
 

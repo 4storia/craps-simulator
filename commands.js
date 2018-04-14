@@ -1,6 +1,6 @@
 const { IllegalBetError } = require('./errors');
 const { checkOutsideTableBetRange, checkCanPlayerBetAmount, checkCanPlayerRemoveAmount } = require('./common-error-checks');
-const { isMultiple, playerDebug } = require('./helpers');
+const { isMultiple, betDebug } = require('./helpers');
 
 function passLineBet({ tableState, playerState, gameState }, bet) {
     // Cannot bet the line after the point has been established
@@ -18,25 +18,43 @@ function passLineBet({ tableState, playerState, gameState }, bet) {
     playerState.removeMoney(bet.amount);
     gameState.passLine.bet(bet.amount);
 
-    playerDebug(`Pass line bet of $${bet.amount}`);
+    betDebug(`Pass line bet of $${bet.amount}`);
 }
 
 function passLineBackingBet({ tableState, playerState, gameState }, bet) {
     if (!gameState.passLine.initialBet) throw new IllegalBetError('Cannot back a pass line bet before first betting on the pass line');
-    checkOutsideTableBetRange(tableState, bet.amount);
 
     if (bet.amount >= 0) {
+        checkOutsideTableBetRange(tableState, bet.amount);
         checkCanPlayerBetAmount(playerState, bet.amount);
     } else {
         checkCanPlayerRemoveAmount(gameState.passLine.backingBet, bet.amount);
     }
 
-    playerState.removeMoney(bet.amount);
+    playerState.diffMoney(bet.amount * -1);
     gameState.passLine.back(bet.amount);
-    playerDebug(`Pass line backing bet of $${bet.amount}`);
+    betDebug(`Pass line backing bet of $${bet.amount}`);
+}
+
+function pointNumberPlaceBet({ tableState, playerState, gameState }, bet) {
+    const point = parseInt(bet.point);
+
+    if (point < 3 || point > 10) throw new IllegalBetError('Place bet must be between 4-10');
+
+    if (bet.amount >= 0) {
+        checkOutsideTableBetRange(tableState, bet.amount);
+        checkCanPlayerBetAmount(playerState, bet.amount);
+    } else {
+        checkCanPlayerRemoveAmount(gameState.pointNumbers.points[String(bet.point)].backingBet, bet.amount);
+    }
+
+    playerState.diffMoney(bet.amount * -1);
+    gameState.pointNumbers.back(point, bet.amount);
+    betDebug(`Place bet on ${point} of $${bet.amount}`);
 }
 
 module.exports = {
     passLineBet,
     passLineBackingBet,
+    pointNumberPlaceBet,
 };

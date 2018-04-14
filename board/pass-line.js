@@ -1,4 +1,4 @@
-const { tableDebug } = require('../helpers');
+const { tableDebug, casinoRound } = require('../helpers');
 
 class PassLine {
     constructor(existingState = {}) {
@@ -7,7 +7,7 @@ class PassLine {
     }
 
     calculatePayout(point) {
-        const initialBetPayout = this.initialBet * 2;
+        const initialBetPayout = casinoRound(this.initialBet, 2);
 
         if (!this.backingBet) return initialBetPayout;
 
@@ -17,15 +17,15 @@ class PassLine {
             6-to-5 if 6 or 8 is the point */
 
         if (point === 4 || point === 10) {
-            return initialBetPayout + (this.backingBet * 2);
+            return initialBetPayout + casinoRound(this.backingBet, 2);
         }
 
         if (point === 5 || point === 9) {
-            return initialBetPayout + parseInt(this.backingBet * (3 / 2));
+            return initialBetPayout + casinoRound(this.backingBet, (3 / 2));
         }
 
         if (point === 6 || point === 8) {
-            return initialBetPayout + parseInt(this.backingBet * (6 / 5));
+            return initialBetPayout + casinoRound(this.backingBet, (6 / 5));
         }
 
         // Unknown point :/
@@ -41,9 +41,11 @@ class PassLine {
     }
 
     resetLine() {
+        const moneyOnLine = this.initialBet + this.backingBet;
         this.initialBet = 0;
         this.backingBet = 0;
         tableDebug('Resetting line');
+        return moneyOnLine;
     }
 }
 

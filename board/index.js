@@ -1,3 +1,4 @@
 const PassLine = require('./pass-line');
+const PointNumbers = require('./point-numbers');
 
-module.exports = { PassLine };
+module.exports = { PassLine, PointNumbers };
